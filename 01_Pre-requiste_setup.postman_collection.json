@@ -1,0 +1,208 @@
+{
+	"info": {
+		"_postman_id": "43e32cad-bd79-4353-93b7-587b5d2642c5",
+		"name": "01_Pre-requiste_setup",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "3438147"
+	},
+	"item": [
+		{
+			"name": "01_Generate Token",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.globals.set(\"urlOkta\", \"https://dev-799517.okta.com\");",
+							"//pm.globals.set(\"urllocal\", \"https://dev-799517.okta.com\");",
+							"//pm.globals.set(\"urlAWS\", \"https://ec2-host.com:port\");",
+							"pm.globals.set(\"urlLDIS\", \"http://ldis.trigyan.cloud\");",
+							"pm.globals.set(\"redirectUri\", \"https://www.getpostman.com/oauth2/callback\");",
+							"pm.globals.set(\"scope\", \"openid\");",
+							"pm.globals.set(\"grantType\", \"password\");",
+							"pm.globals.set(\"usrName\", \"vsathish@trigyan.io\");",
+							"pm.globals.set(\"pswd\", \"Welcome.1\");",
+							"pm.globals.set(\"ClientId\", \"0oa69txflaKfHQlyl4x7\");",
+							"pm.globals.set(\"ClientSecretId\", \"ArmGMygL98kOa8CvUjIJ35Vq6cFj6u2nE5EmLszY\");",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Successfully Authenticated', function(){",
+							"    pm.response.to.have.status(200);",
+							"})",
+							"",
+							"pm.test('Set the Sesion values Successfully', function(){",
+							"    pm.response.to.have.status(200);",
+							"    //console.info(\"Got the payload: \"+ pm.response.json());",
+							"    var data = pm.response.json();",
+							"    //console.info(\"Got the payload2: \"+ data[\"token_type\"]);",
+							"    pm.globals.set('accessToken', data[\"access_token\"]);",
+							"    pm.globals.set('expiresDuration', data[\"expires_in\"]);",
+							"    pm.globals.set('tokenType', data[\"token_type\"]);",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "{{ClientSecretId}}",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "{{ClientId}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "grant_type",
+							"value": "{{grantType}}"
+						},
+						{
+							"key": "redirect_url",
+							"value": "{{redirectUri}}",
+							"type": "default"
+						},
+						{
+							"key": "username",
+							"value": "{{usrName}}",
+							"type": "default"
+						},
+						{
+							"key": "password",
+							"value": "{{pswd}}"
+						},
+						{
+							"key": "scope",
+							"value": "{{scope}}"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{urlOkta}}/oauth2/default/v1/token",
+					"host": [
+						"{{urlOkta}}"
+					],
+					"path": [
+						"oauth2",
+						"default",
+						"v1",
+						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "02_GlideToken Copy",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"",
+							"pm.test('Successfully Authenticated into Trigyan Service', function(){",
+							"    pm.response.to.have.status(200);",
+							"    //pm.expect(pm.response.to.have.status(200)).to.equal(pm.iterationData.get(\"name.status\"));",
+							"",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{accessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{urlLDIS}}/glide/v1/org/organizations",
+					"host": [
+						"{{urlLDIS}}"
+					],
+					"path": [
+						"glide",
+						"v1",
+						"org",
+						"organizations"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "03_Dynamic URL and ClientId",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Dynamically Passed the values of URL and ClientID', function(){",
+							"    pm.response.to.have.status(200);",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{urlOkta}}/oauth2/v1/keys?client_id={{ClientId}}",
+					"host": [
+						"{{urlOkta}}"
+					],
+					"path": [
+						"oauth2",
+						"v1",
+						"keys"
+					],
+					"query": [
+						{
+							"key": "client_id",
+							"value": "{{ClientId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
